@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Line — Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">🏭 Sorting Line</span>
+    <span class="text-white" id="timer">00:00:00</span>
+    <span class="text-secondary" id="data-inizio"></span>
+</nav>
+
+<div class="container-fluid mt-3">
+
+    <div class="row g-3">
+        <div class="col-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Totale pezzi</h6>
+                    <h2 id="m-total">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Bianchi</h6>
+                    <h2 id="m-white" class="text-secondary">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Blu</h6>
+                    <h2 id="m-blue" class="text-primary">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Scarti</h6>
+                    <h2 id="m-fail" class="text-danger">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    📋 Log eventi
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Inizio</th>
+                                <th>Fine</th>
+                                <th>Tempo (s)</th>
+                                <th>Colore</th>
+                                <th>Bin</th>
+                                <th>Passi encoder</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-body">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    In attesa di pezzi...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let start = new Date();
+    document.getElementById('data-inizio').textContent =
+        start.toLocaleDateString('it-IT') + ' ' + start.toLocaleTimeString('it-IT');
+
+    setInterval(() => {
+        let diff = Math.floor((new Date() - start) / 1000);
+        let h = Math.floor(diff / 3600);
+        let m = Math.floor((diff % 3600) / 60);
+        let s = diff % 60;
+        document.getElementById('timer').textContent =
+            String(h).padStart(2,'0') + ':' +
+            String(m).padStart(2,'0') + ':' +
+            String(s).padStart(2,'0');
+    }, 1000);
+
+    setInterval(() => {
+        fetch('/api/eventi')
+        .then(r => r.json())
+        .then(eventi => {
+            let bianchi = eventi.filter(e => e.colore === 'BIANCO').length;
+            let blu     = eventi.filter(e => e.colore === 'BLU').length;
+            let scarti  = eventi.filter(e => e.colore === 'SCARTO').length;
+
+            document.getElementById('m-total').textContent = eventi.length;
+            document.getElementById('m-white').textContent = bianchi;
+            document.getElementById('m-blue').textContent  = blu;
+            document.getElementById('m-fail').textContent  = scarti;
+
+            let tbody = document.getElementById('log-body');
+            tbody.innerHTML = '';
+            [...eventi].reverse().forEach(e => {
+                tbody.innerHTML += `
+                <tr>
+                    <td>${e.timestamp_inizio}</td>
+                    <td>${e.timestamp_fine}</td>
+                    <td>${e.tempo_elaborazione}</td>
+                    <td>${e.colore}</td>
+                    <td>${e.bin}</td>
+                    <td>${e.passi}</td>
+                </tr>`;
+            });
+        });
+    }, 2000);
+</script>
+
+</body>
+</html>
