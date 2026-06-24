@@ -2,13 +2,14 @@
 app.py — Sorting Line Dashboard
 Autore  : Sebastiano Giaquinta
 GitHub  : github.com/Sebastiano74
-Stack   : Flask + SQLite + Groq AI
+Stack   : Flask + SQLite + Groq AI + Auto-discovery
 """
 
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 from groq import Groq
 from dotenv import load_dotenv
+from discovery import init_discovery
 import sqlite3
 import os
 
@@ -17,6 +18,8 @@ load_dotenv()
 app = Flask(__name__)
 DB_PATH = 'sorting.db'
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+# ── Database ───────────────────────────────────────────────────
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -50,6 +53,8 @@ def init_db():
 
 init_db()
 
+# ── Sessione corrente ──────────────────────────────────────────
+
 sessione_corrente = None
 
 def avvia_sessione():
@@ -64,7 +69,11 @@ def avvia_sessione():
     conn.close()
     return sessione_corrente
 
+# Avvia discovery e sessione
+init_discovery()
 avvia_sessione()
+
+# ── Route ──────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
