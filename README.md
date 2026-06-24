@@ -49,6 +49,7 @@ La dashboard sostituisce la console di default di ROBO Pro Coding con un'interfa
 sorting-dashboard/
 ├── app.py                  # Flask app principale
 ├── discovery.py            # Auto-discovery IP sulla rete
+├── simulate_demo.py        # Simulazione 10 pezzi per demo
 ├── setup.bat               # Installer Windows
 ├── setup.sh                # Installer Mac/Linux
 ├── requirements.txt        # Dipendenze Python
