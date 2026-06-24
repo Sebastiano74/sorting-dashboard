@@ -151,7 +151,8 @@ def get_storico():
         LEFT JOIN eventi e ON e.sessione_id = s.id
         GROUP BY s.id
         ORDER BY s.id DESC
-        LIMIT 10
+        LIMIT 8
+                        
     ''').fetchall()
     conn.close()
     return jsonify([dict(r) for r in rows])
